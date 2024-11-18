@@ -1,27 +1,21 @@
 package com.canoestudio.earthquake.util;
 
+import com.canoestudio.earthquake.config.SeismicZoneStorage;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class SeismicZoneUtil {
 
-    // 存储所有地震带信息
     private static final List<SeismicZone> SEISMIC_ZONES = new ArrayList<>();
 
     static {
-        // 添加地震带信息
-        SEISMIC_ZONES.add(new SeismicZone(new BlockPos(0, 0, 0), 1000)); // 地震带1
-        SEISMIC_ZONES.add(new SeismicZone(new BlockPos(2000, 0, -1500), 800)); // 地震带2
+        // 初始化时加载地震带
+        SeismicZoneStorage.initialize();
+        SEISMIC_ZONES.addAll(SeismicZoneStorage.load());
     }
 
-    /**
-     * 检查一个位置是否在任何地震带内
-     *
-     * @param pos 玩家位置
-     * @return 是否在地震带内
-     */
     public static boolean isInSeismicZone(BlockPos pos) {
         for (SeismicZone zone : SEISMIC_ZONES) {
             if (zone.isWithinZone(pos)) {
@@ -31,10 +25,24 @@ public class SeismicZoneUtil {
         return false;
     }
 
-    /**
-     * 内部类表示单个地震带
-     */
-    private static class SeismicZone {
+    public static void addSeismicZone(BlockPos center, int radius) {
+        SEISMIC_ZONES.add(new SeismicZone(center, radius));
+        SeismicZoneStorage.save(SEISMIC_ZONES); // 保存更新
+    }
+
+    public static boolean removeSeismicZone(BlockPos center) {
+        boolean removed = SEISMIC_ZONES.removeIf(zone -> zone.getCenter().equals(center));
+        if (removed) {
+            SeismicZoneStorage.save(SEISMIC_ZONES); // 保存更新
+        }
+        return removed;
+    }
+
+    public static List<SeismicZone> getSeismicZones() {
+        return new ArrayList<>(SEISMIC_ZONES);
+    }
+
+    public static class SeismicZone {
         private final BlockPos center;
         private final int radius;
 
@@ -43,9 +51,25 @@ public class SeismicZoneUtil {
             this.radius = radius;
         }
 
+        public BlockPos getCenter() {
+            return center;
+        }
+
+        public int getRadius() {
+            return radius;
+        }
+
         public boolean isWithinZone(BlockPos pos) {
             double distance = pos.distanceSq(center);
             return distance <= radius * radius;
+        }
+
+        @Override
+        public String toString() {
+            return "SeismicZone{" +
+                    "center=" + center +
+                    ", radius=" + radius +
+                    '}';
         }
     }
 }

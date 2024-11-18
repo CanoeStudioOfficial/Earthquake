@@ -13,7 +13,6 @@ public class Earthquake {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        // 注册事件
         MinecraftForge.EVENT_BUS.register(new EarthquakeEvent());
     }
 }

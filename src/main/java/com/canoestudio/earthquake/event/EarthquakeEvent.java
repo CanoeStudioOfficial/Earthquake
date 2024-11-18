@@ -16,6 +16,8 @@ import java.util.Random;
 
 public class EarthquakeEvent {
     private static final Random random = new Random();
+    private static final int EARTHQUAKE_RANGE = 10;
+    private static final int PARTICLE_COUNT = 100;
 
     // 地震触发逻辑
     @SubscribeEvent
@@ -32,11 +34,10 @@ public class EarthquakeEvent {
     private void triggerEarthquake(World world) {
         for (EntityPlayer player : world.playerEntities) {
             BlockPos playerPos = player.getPosition();
-            int range = 10; // 地震影响范围
 
             // 模拟地表破坏
-            for (int x = -range; x <= range; x++) {
-                for (int z = -range; z <= range; z++) {
+            for (int x = -EARTHQUAKE_RANGE; x <= EARTHQUAKE_RANGE; x++) {
+                for (int z = -EARTHQUAKE_RANGE; z <= EARTHQUAKE_RANGE; z++) {
                     BlockPos pos = playerPos.add(x, random.nextInt(5) - 2, z); // 随机高度扰动
                     IBlockState state = world.getBlockState(pos);
 
@@ -60,7 +61,7 @@ public class EarthquakeEvent {
 
     // 地震粒子效果
     private void spawnEarthquakeParticles(World world) {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < PARTICLE_COUNT; i++) {
             double x = random.nextDouble() * 20 - 10;
             double y = random.nextDouble() * 2 + 1;
             double z = random.nextDouble() * 20 - 10;

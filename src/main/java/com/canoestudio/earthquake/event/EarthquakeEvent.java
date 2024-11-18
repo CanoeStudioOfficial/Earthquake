@@ -1,6 +1,7 @@
 package com.canoestudio.earthquake.event;
 
 import com.canoestudio.earthquake.util.Rank;
+import com.canoestudio.earthquake.util.SeismicZoneUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
@@ -34,8 +35,26 @@ public class EarthquakeEvent {
         }
     }
 
+    private int calculateEarthquakeLevel(EntityPlayer player) {
+        BlockPos playerPos = player.getPosition();
+        boolean isInSeismicZone = SeismicZoneUtil.isInSeismicZone(playerPos);
+
+        // 地震带等级更高
+        return isInSeismicZone ? random.nextInt(6) + 5 : random.nextInt(3) + 1;
+    }
+
+    private boolean shouldTriggerEarthquake(EntityPlayer player) {
+        BlockPos playerPos = player.getPosition();
+        boolean isInSeismicZone = SeismicZoneUtil.isInSeismicZone(playerPos);
+
+        // 地震带触发概率高，非地震带触发概率低
+        double triggerChance = isInSeismicZone ? 0.005 : 0.0005;
+        return random.nextDouble() < triggerChance;
+    }
+
+
     private void triggerEarthquake(World world, Rank rank) {
-        
+
         int level = rank.getLevel();
         for (EntityPlayer player : world.playerEntities) {
             BlockPos playerPos = player.getPosition();
